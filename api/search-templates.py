@@ -1,31 +1,18 @@
-from http.server import BaseHTTPRequestHandler
-import json
-from typing import List, Optional
+from flask import Flask, request, jsonify
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from pydantic import BaseModel
 
 # Load environment variables
 load_dotenv()
 
-# Initialize OpenAI client with API key
+# Initialize Flask app
+app = Flask(__name__)
+
+# Initialize OpenAI client
 client = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY')
 )
-
-# Define our data models
-class CompanyInfo(BaseModel):
-    name: str
-    industry: str
-    description: Optional[str] = None
-    target_audience: Optional[str] = None
-
-class Template(BaseModel):
-    name: str
-    description: str
-    url: str
-    features: List[str]
 
 def search_templates_with_ai(company_info):
     """
@@ -96,40 +83,29 @@ def search_templates_with_ai(company_info):
             ]
         }
 
-class handler(BaseHTTPRequestHandler):
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.end_headers()
-    
-    def do_POST(self):
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length > 0:
-                post_data = self.rfile.read(content_length)
-                company_info = json.loads(post_data.decode('utf-8'))
-                
-                # Get template suggestions using AI and web search
-                result = search_templates_with_ai(company_info)
-                
-                # Send response
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                
-                self.wfile.write(json.dumps(result).encode('utf-8'))
-            else:
-                raise ValueError("Empty request body")
-                
-        except Exception as e:
-            print(f"Error handling request: {str(e)}")  # Add server-side logging
-            self.send_response(500)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            
-            error_message = {"error": str(e)}
-            self.wfile.write(json.dumps(error_message).encode('utf-8')) 
+@app.route('/api/search-templates', methods=['POST', 'OPTIONS'])
+def search_templates():
+    if request.method == 'OPTIONS':
+        # Handle CORS preflight request
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+
+    try:
+        company_info = request.json
+        if not company_info:
+            raise ValueError("Empty request body")
+
+        result = search_templates_with_ai(company_info)
+        
+        response = jsonify(result)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    except Exception as e:
+        error_response = jsonify({'error': str(e)})
+        error_response.headers.add('Access-Control-Allow-Origin', '*')
+        error_response.status_code = 500
+        return error_response 

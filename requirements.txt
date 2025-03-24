@@ -1,3 +1,4 @@
-pydantic==2.10.6
+flask==3.0.3
+openai==1.14.0
 requests==2.32.3
-beautifulsoup4==4.13.3 
+python-dotenv==1.0.1 
