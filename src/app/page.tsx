@@ -16,7 +16,6 @@ interface TemplateResults {
 
 export default function Home() {
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleFormSubmit = async (data: TemplateResults) => {
     setTemplates(data.templates);
@@ -29,8 +28,8 @@ export default function Home() {
           <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
             Find Your Perfect Website Template
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Tell us about your company, and we'll find the best website templates that match your needs
+          <p className="text-xl text-white max-w-2xl mx-auto">
+            Tell us about your company, and we&apos;ll find the best website templates that match your needs
           </p>
         </div>
 
@@ -43,13 +42,13 @@ export default function Home() {
             {templates.map((template, index) => (
               <div
                 key={index}
-                className="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
               >
-                <h3 className="text-xl font-semibold mb-3">{template.name}</h3>
-                <p className="text-gray-400 mb-4">{template.description}</p>
+                <h3 className="text-xl font-semibold mb-3 text-white">{template.name}</h3>
+                <p className="text-white/90 mb-4">{template.description}</p>
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-300 mb-2">Features:</h4>
-                  <ul className="list-disc list-inside text-gray-400">
+                  <h4 className="text-sm font-medium text-white mb-2">Features:</h4>
+                  <ul className="list-disc list-inside text-white/90">
                     {template.features.map((feature, featureIndex) => (
                       <li key={featureIndex}>{feature}</li>
                     ))}
