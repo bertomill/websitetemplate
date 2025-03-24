@@ -4,6 +4,7 @@ from typing import List, Optional
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 # Load environment variables
 load_dotenv()
